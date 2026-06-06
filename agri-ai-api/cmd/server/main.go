@@ -58,6 +58,7 @@ func main() {
 					"user_id": userID,
 				})
 			})
+			protected.GET("/weather", handlers.GetWeatherHandler)
 		}
 	}
 

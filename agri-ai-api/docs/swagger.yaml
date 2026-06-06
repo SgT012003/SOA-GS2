@@ -17,6 +17,24 @@ definitions:
       token:
         type: string
     type: object
+  models.OpenMeteoResponse:
+    properties:
+      current:
+        properties:
+          precipitation:
+            type: number
+          temperature_2m:
+            type: number
+          time:
+            type: string
+        type: object
+      latitude:
+        type: number
+      longitude:
+        type: number
+      timezone:
+        type: string
+    type: object
   models.RegisterRequest:
     properties:
       email:
@@ -133,6 +151,47 @@ paths:
       summary: Ping the API
       tags:
       - health
+  /protected/weather:
+    get:
+      consumes:
+      - application/json
+      description: Retorna a temperatura e precipitação de uma coordenada. Utiliza
+        cache no banco de dados e Open-Meteo como fallback.
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OpenMeteoResponse'
+        "400":
+          description: Parâmetros inválidos
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno ao buscar clima
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar Clima Atual
+      tags:
+      - weather
 securityDefinitions:
   BearerAuth:
     in: header
