@@ -5,6 +5,7 @@ import (
 
 	"agri-ai-api/internal/dao"
 	"agri-ai-api/internal/handlers"
+	"agri-ai-api/internal/middleware"
 
 	_ "agri-ai-api/docs"
 
@@ -39,6 +40,25 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/ping", handlers.PingHandler)
+
+		authGroup := v1.Group("/auth")
+		{
+			authGroup.POST("/register", handlers.RegisterHandler)
+			authGroup.POST("/login", handlers.LoginHandler)
+		}
+
+		// Protected routes
+		protected := v1.Group("/protected")
+		protected.Use(middleware.AuthMiddleware())
+		{
+			protected.GET("/me", func(c *gin.Context) {
+				userID := c.MustGet("userID").(int)
+				c.JSON(200, gin.H{
+					"message": "You have access!",
+					"user_id": userID,
+				})
+			})
+		}
 	}
 
 	log.Println("Starting server on :8080")
