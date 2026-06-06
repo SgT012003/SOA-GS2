@@ -8,18 +8,18 @@ import (
 )
 
 func main() {
-	// Defina a URL base. Para o teste usaremos o /ping que é aberto
+	// Defina a URL base. Para o teste usaremos o /healthz que é aberto
 	// Ou o login (se tiver as credenciais mockadas)
-	url := "http://localhost:8080/api/v1/ping"
+	url := "http://localhost:8080/api/v1/healthz"
 	numRequests := 1000 // Total de requisições
-	concurrency := 50   // Requisições simultâneas
+	concurrency := 20   // Requisições simultâneas
 
 	fmt.Printf("Iniciando Load Test em %s\n", url)
 	fmt.Printf("Total de Requisições: %d | Concorrência: %d\n", numRequests, concurrency)
 
 	var wg sync.WaitGroup
 	requestsChan := make(chan int, numRequests)
-	
+
 	start := time.Now()
 
 	// Inicia os workers
