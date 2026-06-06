@@ -11,6 +11,7 @@ type OpenMeteoResponse struct {
 		Time          string  `json:"time"`
 		Temperature2m float64 `json:"temperature_2m"`
 		Precipitation float64 `json:"precipitation"`
+		WindSpeed10m  float64 `json:"wind_speed_10m"`
 	} `json:"current"`
 }
 

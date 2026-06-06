@@ -35,10 +35,11 @@ func main() {
 	userDAO := dao.NewUserDAO()
 	weatherDAO := dao.NewWeatherDAO()
 	usageDAO := dao.NewUsageDAO()
+	cropDAO := dao.NewCropDAO(dao.DB) // Injetando dao.DB global
 
 	authService := services.NewAuthService(userDAO)
 	weatherService := services.NewWeatherService(weatherDAO)
-	engineService := services.NewEngineService(weatherService)
+	engineService := services.NewEngineService(weatherService, cropDAO)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	weatherHandler := handlers.NewWeatherHandler(weatherService)
@@ -79,6 +80,8 @@ func main() {
 			engine := protected.Group("/engine")
 			{
 				engine.GET("/harvest", engineHandler.HarvestEngineHandler)
+				engine.GET("/risk-analysis", engineHandler.RiskAnalysisHandler)
+				engine.GET("/crop-selector", engineHandler.CropSelectorHandler)
 			}
 		}
 	}

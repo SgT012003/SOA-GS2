@@ -1,5 +1,17 @@
 basePath: /api/v1
 definitions:
+  models.CropRecommendation:
+    properties:
+      crop_name:
+        example: Milho
+        type: string
+      justification:
+        example: Temperatura e precipitação adequados
+        type: string
+      match_percentage:
+        example: 95.5
+        type: number
+    type: object
   models.HarvestPlan:
     properties:
       precipitation:
@@ -49,6 +61,27 @@ definitions:
       timezone:
         type: string
     type: object
+  models.ProblemDetail:
+    properties:
+      business_error:
+        example: true
+        type: boolean
+      detail:
+        example: A latitude fornecida não é um número válido.
+        type: string
+      instance:
+        example: /api/v1/protected/engine/harvest
+        type: string
+      status:
+        example: 400
+        type: integer
+      title:
+        example: Parâmetros Inválidos
+        type: string
+      type:
+        example: https://api.agri-ai.com/errors/invalid-parameters
+        type: string
+    type: object
   models.RegisterRequest:
     properties:
       email:
@@ -61,6 +94,18 @@ definitions:
     required:
     - email
     - password
+    type: object
+  models.RiskAnalysis:
+    properties:
+      overall_risk_score:
+        example: 45
+        type: integer
+      risk_factors:
+        example:
+        - Risco de Geada
+        items:
+          type: string
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -165,6 +210,48 @@ paths:
       summary: Ping the API
       tags:
       - health
+  /protected/engine/crop-selector:
+    get:
+      consumes:
+      - application/json
+      description: Faz um match climático entre as safras do banco e o clima da região
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      - description: 'Estação do ano (ex: summer, winter)'
+        in: query
+        name: season
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CropRecommendation'
+            type: array
+        "400":
+          description: Parâmetros inválidos
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: Seleção de Cultivo
+      tags:
+      - engine
   /protected/engine/harvest:
     get:
       consumes:
@@ -191,24 +278,54 @@ paths:
         "400":
           description: Parâmetros inválidos
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ProblemDetail'
         "429":
           description: Muitas requisições (Rate Limit)
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ProblemDetail'
         "500":
           description: Erro interno
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ProblemDetail'
       security:
       - BearerAuth: []
       summary: Predição de Colheita
+      tags:
+      - engine
+  /protected/engine/risk-analysis:
+    get:
+      consumes:
+      - application/json
+      description: Avalia risco baseado em temperatura, vento e chuva
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RiskAnalysis'
+        "400":
+          description: Parâmetros inválidos
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: Análise de Risco (Geada / Incêndio)
       tags:
       - engine
   /protected/weather:

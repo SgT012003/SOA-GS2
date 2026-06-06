@@ -155,6 +155,71 @@
                 }
             }
         },
+        "/protected/engine/crop-selector": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Faz um match climático entre as safras do banco e o clima da região",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "engine"
+                ],
+                "summary": "Seleção de Cultivo",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Estação do ano (ex: summer, winter)",
+                        "name": "season",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CropRecommendation"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    }
+                }
+            }
+        },
         "/protected/engine/harvest": {
             "get": {
                 "security": [
@@ -199,28 +264,75 @@
                     "400": {
                         "description": "Parâmetros inválidos",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ProblemDetail"
                         }
                     },
                     "429": {
                         "description": "Muitas requisições (Rate Limit)",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ProblemDetail"
                         }
                     },
                     "500": {
                         "description": "Erro interno",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    }
+                }
+            }
+        },
+        "/protected/engine/risk-analysis": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Avalia risco baseado em temperatura, vento e chuva",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "engine"
+                ],
+                "summary": "Análise de Risco (Geada / Incêndio)",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RiskAnalysis"
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
                         }
                     }
                 }
@@ -290,6 +402,23 @@
         }
     },
     "definitions": {
+        "models.CropRecommendation": {
+            "type": "object",
+            "properties": {
+                "crop_name": {
+                    "type": "string",
+                    "example": "Milho"
+                },
+                "justification": {
+                    "type": "string",
+                    "example": "Temperatura e precipitação adequados"
+                },
+                "match_percentage": {
+                    "type": "number",
+                    "example": 95.5
+                }
+            }
+        },
         "models.HarvestPlan": {
             "type": "object",
             "properties": {
@@ -363,6 +492,35 @@
                 }
             }
         },
+        "models.ProblemDetail": {
+            "type": "object",
+            "properties": {
+                "business_error": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "detail": {
+                    "type": "string",
+                    "example": "A latitude fornecida não é um número válido."
+                },
+                "instance": {
+                    "type": "string",
+                    "example": "/api/v1/protected/engine/harvest"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Parâmetros Inválidos"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "https://api.agri-ai.com/errors/invalid-parameters"
+                }
+            }
+        },
         "models.RegisterRequest": {
             "type": "object",
             "required": [
@@ -378,6 +536,24 @@
                     "type": "string",
                     "minLength": 6,
                     "example": "strongpassword"
+                }
+            }
+        },
+        "models.RiskAnalysis": {
+            "type": "object",
+            "properties": {
+                "overall_risk_score": {
+                    "type": "integer",
+                    "example": 45
+                },
+                "risk_factors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Risco de Geada"
+                    ]
                 }
             }
         }

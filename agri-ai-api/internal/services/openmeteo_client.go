@@ -27,7 +27,7 @@ func init() {
 
 // FetchOpenMeteo realiza a requisição à API usando Retry e Circuit Breaker
 func FetchOpenMeteo(lat, lon float64) ([]byte, error) {
-	url := fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current=temperature_2m,precipitation", lat, lon)
+	url := fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current=temperature_2m,precipitation,wind_speed_10m", lat, lon)
 
 	// A execução do cb.Execute envolve toda a lógica de chamada e retry
 	result, err := cb.Execute(func() (interface{}, error) {
