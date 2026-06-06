@@ -4,10 +4,10 @@ run: swagger
 	go run cmd/server/main.go
 
 db-up:
-	docker-compose up -d
+	docker-compose up --build -d
 
 db-down:
-	docker-compose down
+	docker-compose down -v
 
 migrate-up:
 	migrate -path migrations -database "postgres://admin:password@localhost:5432/agri_ai?sslmode=disable" -verbose up

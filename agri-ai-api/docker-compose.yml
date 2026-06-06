@@ -13,6 +13,34 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d agri_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    container_name: agri_ai_migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgres://admin:password@postgres:5432/agri_ai?sslmode=disable", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    container_name: agri_ai_server
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://admin:password@postgres:5432/agri_ai?sslmode=disable
+      - GIN_MODE=release
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
