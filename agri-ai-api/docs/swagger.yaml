@@ -1,0 +1,29 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact: {}
+  description: API backend for agricultural AI insights
+  title: Agri-AI API
+  version: "1.0"
+paths:
+  /ping:
+    get:
+      description: get a simple pong message to verify the API is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Ping the API
+      tags:
+      - health
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
