@@ -6,6 +6,7 @@ import (
 	"agri-ai-api/internal/dao"
 	"agri-ai-api/internal/handlers"
 	"agri-ai-api/internal/middleware"
+	"agri-ai-api/internal/services"
 
 	_ "agri-ai-api/docs"
 
@@ -30,6 +31,18 @@ func main() {
 		defer dao.CloseDB()
 	}
 
+	// Wiring (Injeção de Dependências)
+	userDAO := dao.NewUserDAO()
+	weatherDAO := dao.NewWeatherDAO()
+
+	authService := services.NewAuthService(userDAO)
+	weatherService := services.NewWeatherService(weatherDAO)
+	engineService := services.NewEngineService(weatherService)
+
+	authHandler := handlers.NewAuthHandler(authService)
+	weatherHandler := handlers.NewWeatherHandler(weatherService)
+	engineHandler := handlers.NewEngineHandler(engineService)
+
 	// Initialize Gin engine
 	r := gin.Default()
 
@@ -43,8 +56,8 @@ func main() {
 
 		authGroup := v1.Group("/auth")
 		{
-			authGroup.POST("/register", handlers.RegisterHandler)
-			authGroup.POST("/login", handlers.LoginHandler)
+			authGroup.POST("/register", authHandler.Register)
+			authGroup.POST("/login", authHandler.Login)
 		}
 
 		// Protected routes
@@ -60,11 +73,11 @@ func main() {
 					"user_id": userID,
 				})
 			})
-			protected.GET("/weather", handlers.GetWeatherHandler)
+			protected.GET("/weather", weatherHandler.GetWeatherHandler)
 			
 			engine := protected.Group("/engine")
 			{
-				engine.GET("/harvest", handlers.HarvestEngineHandler)
+				engine.GET("/harvest", engineHandler.HarvestEngineHandler)
 			}
 		}
 	}

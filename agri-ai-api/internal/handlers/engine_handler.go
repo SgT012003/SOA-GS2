@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type EngineHandler struct {
+	engineService services.EngineService
+}
+
+func NewEngineHandler(engineService services.EngineService) *EngineHandler {
+	return &EngineHandler{
+		engineService: engineService,
+	}
+}
+
 // HarvestEngineHandler analisa os dados e gera um plano de colheita
 // @Summary Predição de Colheita
 // @Description Avalia as condições climáticas e indica a viabilidade de colheita
@@ -23,7 +33,7 @@ import (
 // @Failure 429 {object} map[string]string "Muitas requisições (Rate Limit)"
 // @Failure 500 {object} map[string]string "Erro interno"
 // @Router /protected/engine/harvest [get]
-func HarvestEngineHandler(c *gin.Context) {
+func (h *EngineHandler) HarvestEngineHandler(c *gin.Context) {
 	latStr := c.Query("lat")
 	lonStr := c.Query("lon")
 
@@ -35,7 +45,7 @@ func HarvestEngineHandler(c *gin.Context) {
 		return
 	}
 
-	plan, err := services.GenerateHarvestPlan(lat, lon)
+	plan, err := h.engineService.GenerateHarvestPlan(lat, lon)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falha ao gerar o plano de colheita", "details": err.Error()})
 		return

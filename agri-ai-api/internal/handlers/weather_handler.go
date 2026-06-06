@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type WeatherHandler struct {
+	weatherService services.WeatherService
+}
+
+func NewWeatherHandler(weatherService services.WeatherService) *WeatherHandler {
+	return &WeatherHandler{
+		weatherService: weatherService,
+	}
+}
+
 // GetWeatherHandler busca os dados de clima
 // @Summary Buscar Clima Atual
 // @Description Retorna a temperatura e precipitação de uma coordenada. Utiliza cache no banco de dados e Open-Meteo como fallback.
@@ -22,7 +32,7 @@ import (
 // @Failure 400 {object} map[string]string "Parâmetros inválidos"
 // @Failure 500 {object} map[string]string "Erro interno ao buscar clima"
 // @Router /protected/weather [get]
-func GetWeatherHandler(c *gin.Context) {
+func (h *WeatherHandler) GetWeatherHandler(c *gin.Context) {
 	latStr := c.Query("lat")
 	lonStr := c.Query("lon")
 
@@ -34,7 +44,7 @@ func GetWeatherHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := services.GetWeather(lat, lon)
+	response, err := h.weatherService.GetWeather(lat, lon)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falha ao buscar dados climáticos", "details": err.Error()})
 		return

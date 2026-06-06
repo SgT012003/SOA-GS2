@@ -4,10 +4,24 @@ import (
 	"agri-ai-api/internal/models"
 )
 
+// EngineService define as operações do motor
+type EngineService interface {
+	GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error)
+}
+
+type EngineServiceImpl struct {
+	weatherService WeatherService
+}
+
+func NewEngineService(weatherService WeatherService) EngineService {
+	return &EngineServiceImpl{
+		weatherService: weatherService,
+	}
+}
+
 // GenerateHarvestPlan cria uma recomendação de colheita baseada no clima
-func GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error) {
-	// 1. Busca os dados climáticos atuais (reutilizando o serviço construído no Sprint 3)
-	weather, err := GetWeather(lat, lon)
+func (s *EngineServiceImpl) GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error) {
+	weather, err := s.weatherService.GetWeather(lat, lon)
 	if err != nil {
 		return nil, err
 	}
@@ -15,12 +29,9 @@ func GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error) {
 	temp := weather.Current.Temperature2m
 	precip := weather.Current.Precipitation
 
-	// 2. Motor de Regras Estatísticas/Preditivas Simuladas
-	// Cenário Ideal: Temperatura amena e sem chuva
 	score := 100
 	recommendation := "Condições excelentes para colheita."
 
-	// Penalização por chuva (colheita com chuva não é ideal)
 	if precip > 0 {
 		if precip < 2.0 {
 			score -= 30
@@ -31,7 +42,6 @@ func GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error) {
 		}
 	}
 
-	// Penalização por temperatura extrema
 	if temp > 35.0 {
 		score -= 40
 		if score > 0 {
@@ -44,7 +54,6 @@ func GenerateHarvestPlan(lat, lon float64) (*models.HarvestPlan, error) {
 		}
 	}
 
-	// Limita o score entre 0 e 100
 	if score < 0 {
 		score = 0
 	}
