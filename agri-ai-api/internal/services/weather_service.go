@@ -12,6 +12,7 @@ import (
 // WeatherService define as operações de clima
 type WeatherService interface {
 	GetWeather(lat, lon float64) (*models.OpenMeteoResponse, error)
+	GetAllCaches(limit, offset int) ([]models.WeatherCache, error)
 }
 
 type WeatherServiceImpl struct {

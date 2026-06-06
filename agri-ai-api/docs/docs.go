@@ -161,6 +161,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/protected/crops": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna todos os perfis de culturas (Crops) disponíveis no banco",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "crops"
+                ],
+                "summary": "Listar Culturas Agrícolas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CropProfile"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    }
+                }
+            }
+        },
         "/protected/engine/crop-selector": {
             "get": {
                 "security": [
@@ -405,9 +442,92 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/protected/weather/cache": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna todos os dados cacheados de clima com suporte a paginação",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Listar Cache Climático",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limite de resultados (default 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deslocamento de resultados (default 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.WeatherCache"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemDetail"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.CropProfile": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "ideal_season": {
+                    "type": "string",
+                    "example": "summer"
+                },
+                "max_precipitation": {
+                    "type": "number",
+                    "example": 800
+                },
+                "max_temp": {
+                    "type": "number",
+                    "example": 32
+                },
+                "min_precipitation": {
+                    "type": "number",
+                    "example": 500
+                },
+                "min_temp": {
+                    "type": "number",
+                    "example": 21
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Milho"
+                }
+            }
+        },
         "models.CropRecommendation": {
             "type": "object",
             "properties": {
@@ -484,6 +604,9 @@ const docTemplate = `{
                         },
                         "time": {
                             "type": "string"
+                        },
+                        "wind_speed_10m": {
+                            "type": "number"
                         }
                     }
                 },
@@ -560,6 +683,30 @@ const docTemplate = `{
                     "example": [
                         "Risco de Geada"
                     ]
+                }
+            }
+        },
+        "models.WeatherCache": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "description": "JSON string da resposta",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "query_date": {
+                    "type": "string"
                 }
             }
         }

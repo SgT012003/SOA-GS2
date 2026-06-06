@@ -1,5 +1,28 @@
 basePath: /api/v1
 definitions:
+  models.CropProfile:
+    properties:
+      id:
+        type: integer
+      ideal_season:
+        example: summer
+        type: string
+      max_precipitation:
+        example: 800
+        type: number
+      max_temp:
+        example: 32
+        type: number
+      min_precipitation:
+        example: 500
+        type: number
+      min_temp:
+        example: 21
+        type: number
+      name:
+        example: Milho
+        type: string
+    type: object
   models.CropRecommendation:
     properties:
       crop_name:
@@ -53,6 +76,8 @@ definitions:
             type: number
           time:
             type: string
+          wind_speed_10m:
+            type: number
         type: object
       latitude:
         type: number
@@ -106,6 +131,22 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  models.WeatherCache:
+    properties:
+      created_at:
+        type: string
+      data:
+        description: JSON string da resposta
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      query_date:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -210,6 +251,29 @@ paths:
       summary: Ping the API
       tags:
       - health
+  /protected/crops:
+    get:
+      consumes:
+      - application/json
+      description: Retorna todos os perfis de culturas (Crops) disponíveis no banco
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CropProfile'
+            type: array
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: Listar Culturas Agrícolas
+      tags:
+      - crops
   /protected/engine/crop-selector:
     get:
       consumes:
@@ -367,6 +431,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Buscar Clima Atual
+      tags:
+      - weather
+  /protected/weather/cache:
+    get:
+      consumes:
+      - application/json
+      description: Retorna todos os dados cacheados de clima com suporte a paginação
+      parameters:
+      - description: Limite de resultados (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Deslocamento de resultados (default 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WeatherCache'
+            type: array
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/models.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: Listar Cache Climático
       tags:
       - weather
 securityDefinitions:

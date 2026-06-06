@@ -40,10 +40,12 @@ func main() {
 	authService := services.NewAuthService(userDAO)
 	weatherService := services.NewWeatherService(weatherDAO)
 	engineService := services.NewEngineService(weatherService, cropDAO)
+	cropService := services.NewCropService(cropDAO)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	weatherHandler := handlers.NewWeatherHandler(weatherService)
 	engineHandler := handlers.NewEngineHandler(engineService)
+	cropHandler := handlers.NewCropHandler(cropService)
 
 	// Initialize Gin engine
 	r := gin.Default()
@@ -75,8 +77,15 @@ func main() {
 					"user_id": userID,
 				})
 			})
-			protected.GET("/weather", weatherHandler.GetWeatherHandler)
 			
+			// Rotas de Clima
+			protected.GET("/weather", weatherHandler.GetWeatherHandler)
+			protected.GET("/weather/cache", weatherHandler.GetAllCachesHandler)
+
+			// Rotas de Culturas
+			protected.GET("/crops", cropHandler.GetAllCropsHandler)
+			
+			// Rotas do Motor Preditivo
 			engine := protected.Group("/engine")
 			{
 				engine.GET("/harvest", engineHandler.HarvestEngineHandler)

@@ -12,6 +12,7 @@ import (
 type WeatherDAO interface {
 	GetCache(lat, lon float64, date time.Time) (*models.WeatherCache, error)
 	SaveCache(lat, lon float64, date time.Time, data string) error
+	GetAllCaches(limit, offset int) ([]models.WeatherCache, error)
 }
 
 // WeatherDAOImpl é a implementação
