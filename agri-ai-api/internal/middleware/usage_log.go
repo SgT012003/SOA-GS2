@@ -8,10 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var usageDAO = dao.NewUsageDAO()
-
 // UsageLogMiddleware registra endpoints acessados por usuários autenticados
-func UsageLogMiddleware() gin.HandlerFunc {
+func UsageLogMiddleware(usageDAO dao.UsageDAO) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Executa os handlers primeiro
 		c.Next()

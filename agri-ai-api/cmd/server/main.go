@@ -34,6 +34,7 @@ func main() {
 	// Wiring (Injeção de Dependências)
 	userDAO := dao.NewUserDAO()
 	weatherDAO := dao.NewWeatherDAO()
+	usageDAO := dao.NewUsageDAO()
 
 	authService := services.NewAuthService(userDAO)
 	weatherService := services.NewWeatherService(weatherDAO)
@@ -64,7 +65,7 @@ func main() {
 		protected := v1.Group("/protected")
 		protected.Use(middleware.AuthMiddleware())
 		protected.Use(middleware.RateLimitMiddleware())
-		protected.Use(middleware.UsageLogMiddleware())
+		protected.Use(middleware.UsageLogMiddleware(usageDAO))
 		{
 			protected.GET("/me", func(c *gin.Context) {
 				userID := c.MustGet("userID").(int)
