@@ -87,14 +87,14 @@ func main() {
 					"user_id": userID,
 				})
 			})
-			
+
 			// Rotas de Clima
 			protected.GET("/weather", weatherHandler.GetWeatherHandler)
 			protected.GET("/weather/cache", weatherHandler.GetAllCachesHandler)
 
 			// Rotas de Culturas
 			protected.GET("/crops", cropHandler.GetAllCropsHandler)
-			
+
 			// Rotas do Motor Preditivo
 			engine := protected.Group("/engine")
 			{
