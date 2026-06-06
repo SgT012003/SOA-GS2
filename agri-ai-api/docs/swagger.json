@@ -155,6 +155,77 @@
                 }
             }
         },
+        "/protected/engine/harvest": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Avalia as condições climáticas e indica a viabilidade de colheita",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "engine"
+                ],
+                "summary": "Predição de Colheita",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HarvestPlan"
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Muitas requisições (Rate Limit)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/protected/weather": {
             "get": {
                 "security": [
@@ -219,6 +290,26 @@
         }
     },
     "definitions": {
+        "models.HarvestPlan": {
+            "type": "object",
+            "properties": {
+                "precipitation": {
+                    "type": "number"
+                },
+                "recommendation": {
+                    "type": "string",
+                    "example": "Colheita recomendada. Condições ideais de temperatura e sem chuvas."
+                },
+                "temperature": {
+                    "type": "number"
+                },
+                "viability_score": {
+                    "description": "0 a 100",
+                    "type": "integer",
+                    "example": 85
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "required": [

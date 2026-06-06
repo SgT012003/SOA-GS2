@@ -50,6 +50,8 @@ func main() {
 		// Protected routes
 		protected := v1.Group("/protected")
 		protected.Use(middleware.AuthMiddleware())
+		protected.Use(middleware.RateLimitMiddleware())
+		protected.Use(middleware.UsageLogMiddleware())
 		{
 			protected.GET("/me", func(c *gin.Context) {
 				userID := c.MustGet("userID").(int)
@@ -59,6 +61,11 @@ func main() {
 				})
 			})
 			protected.GET("/weather", handlers.GetWeatherHandler)
+			
+			engine := protected.Group("/engine")
+			{
+				engine.GET("/harvest", handlers.HarvestEngineHandler)
+			}
 		}
 	}
 

@@ -1,5 +1,19 @@
 basePath: /api/v1
 definitions:
+  models.HarvestPlan:
+    properties:
+      precipitation:
+        type: number
+      recommendation:
+        example: Colheita recomendada. Condições ideais de temperatura e sem chuvas.
+        type: string
+      temperature:
+        type: number
+      viability_score:
+        description: 0 a 100
+        example: 85
+        type: integer
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -151,6 +165,52 @@ paths:
       summary: Ping the API
       tags:
       - health
+  /protected/engine/harvest:
+    get:
+      consumes:
+      - application/json
+      description: Avalia as condições climáticas e indica a viabilidade de colheita
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HarvestPlan'
+        "400":
+          description: Parâmetros inválidos
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Muitas requisições (Rate Limit)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Predição de Colheita
+      tags:
+      - engine
   /protected/weather:
     get:
       consumes:

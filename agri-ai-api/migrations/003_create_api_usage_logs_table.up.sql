@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS api_usage_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    endpoint VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user
+      FOREIGN KEY(user_id) 
+      REFERENCES users(id)
+      ON DELETE CASCADE
+);
