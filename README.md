@@ -36,7 +36,7 @@ O diagrama abaixo ilustra as camadas de isolamento logico (Controllers, Services
 graph TD
     Client((Cliente HTTP / Front-End)) -->|Requisicoes REST| API
 
-    subgraph "Agri-AI Backend (Go / Gin)"
+    subgraph Agri_AI_Backend ["Agri-AI Backend (Go / Gin)"]
         API[API Gateway / Router]
         
         subgraph Middlewares
@@ -58,7 +58,7 @@ graph TD
         
         Middlewares --> Handlers
         
-        subgraph Services "Regras de Negocio"
+        subgraph Services ["Regras de Negocio"]
             AuthS(Auth Service)
             WeaS(Weather Service)
             EngS(AgriAI Engine Service)
@@ -73,7 +73,7 @@ graph TD
         EngS -.->|Dependencia Interna| WeaS
         EngS -.->|Dependencia Interna| CropS
         
-        subgraph DAO "Acesso a Dados (SQL Puro)"
+        subgraph DAO ["Acesso a Dados (SQL Puro)"]
             UserD[(User DAO)]
             WeaD[(Weather DAO)]
             CropD[(Crop DAO)]
@@ -86,7 +86,7 @@ graph TD
         LogMW --> UsageD
     end
 
-    subgraph "Infraestrutura (Docker)"
+    subgraph Infraestrutura ["Infraestrutura (Docker)"]
         DB[(PostgreSQL)]
     end
 
@@ -160,6 +160,32 @@ Requisitos: Ter o `Docker` e o `docker-compose` instalados na maquina.
 3. Aguarde cerca de 10 segundos. O container de migracao criara automaticamente as tabelas no PostgreSQL e as semeara com as Culturas.
 4. A API base estara disponivel em `http://localhost:8080/api/v1`.
 5. Interaja com os Endpoints e teste a plataforma visitando a interface visual do Swagger:
-   ```text
-   http://localhost:8080/swagger/index.html
-   ```
+	```text
+	http://localhost:8080/swagger/index.html
+	```
+
+---
+
+## 10. Estrutura do Projeto (File Tree)
+
+```text
+SOA-GS2/
+├── cmd/
+│   ├── loadtest/
+│   └── server/          # Entrypoint principal (main.go)
+├── docs/                # Documentacao autogerada pelo Swagger
+├── internal/            # Codigo fonte restrito a aplicacao
+│   ├── auth/            # Regras de Hash e senhas
+│   ├── dao/             # Data Access Objects (SQL)
+│   ├── handlers/        # Controladores HTTP (Gin)
+│   ├── middleware/      # Interceptadores (Auth, Rate Limit, Logs)
+│   ├── models/          # Entidades e structs de Dados
+│   └── services/        # Regras de Negocio (Engine, Weather, etc)
+├── migrations/          # Scripts SQL de versionamento do BD
+├── docker-compose.yml   # Orquestracao dos containers
+├── Dockerfile           # Imagem otimizada (Multi-stage) do backend
+├── go.mod               # Gerenciamento de dependencias
+├── go.sum
+├── Makefile             # Comandos uteis de desenvolvimento
+└── README.md            # Documento Arquitetural
+```
