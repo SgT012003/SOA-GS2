@@ -2,8 +2,7 @@ package dao
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
+	"log/slog"
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -15,20 +14,22 @@ var DB *sql.DB
 func InitDB() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgres://admin:password@localhost:5432/agri_ai?sslmode=disable"
+		dsn = "postgres://postgres:postgres@localhost:5432/agriai?sslmode=disable"
 	}
 
 	var err error
 	DB, err = sql.Open("pgx", dsn)
 	if err != nil {
-		return fmt.Errorf("failed to open database connection: %v", err)
+		slog.Error("Falha ao inicializar banco de dados", slog.String("error", err.Error()))
+		return err
 	}
 
 	if err = DB.Ping(); err != nil {
-		return fmt.Errorf("failed to ping database: %v", err)
+		slog.Error("Falha no ping do banco de dados", slog.String("error", err.Error()))
+		return err
 	}
 
-	log.Println("Successfully connected to the database")
+	slog.Info("Successfully connected to the database")
 	return nil
 }
 

@@ -49,6 +49,21 @@ definitions:
         example: 85
         type: integer
     type: object
+  models.HealthResponse:
+    properties:
+      api:
+        example: UP
+        type: string
+      database:
+        example: UP
+        type: string
+      timestamp:
+        example: "2026-06-06T11:20:00Z"
+        type: string
+      uptime:
+        example: 14m3s
+        type: string
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -236,21 +251,23 @@ paths:
       summary: Registrar usuário
       tags:
       - auth
-  /ping:
+  /healthz:
     get:
-      description: get a simple pong message to verify the API is running
+      description: Verifica status da API e conexões com o banco de dados
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Ping the API
+            $ref: '#/definitions/models.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/models.HealthResponse'
+      summary: Liveness/Readiness Probe
       tags:
-      - health
+      - system
   /protected/crops:
     get:
       consumes:

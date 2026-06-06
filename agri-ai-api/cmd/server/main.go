@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"log/slog"
+	"os"
 
 	"agri-ai-api/internal/dao"
 	"agri-ai-api/internal/handlers"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 )
 
 // @title Agri-AI API
@@ -24,9 +26,13 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	// Configurar slog (Structured Logging em JSON)
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	// Initialize database
 	if err := dao.InitDB(); err != nil {
-		log.Printf("Warning: Database initialization failed (is docker running?): %v", err)
+		slog.Warn("Database initialization failed (is docker running?)", slog.String("error", err.Error()))
 	} else {
 		defer dao.CloseDB()
 	}
@@ -50,13 +56,17 @@ func main() {
 	// Initialize Gin engine
 	r := gin.Default()
 
+	// Configurar Prometheus Metrics
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(r)
+
 	// Swagger route
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 group
 	v1 := r.Group("/api/v1")
 	{
-		v1.GET("/ping", handlers.PingHandler)
+		v1.GET("/healthz", handlers.HealthzHandler)
 
 		authGroup := v1.Group("/auth")
 		{
@@ -95,8 +105,9 @@ func main() {
 		}
 	}
 
-	log.Println("Starting server on :8080")
+	slog.Info("Starting server on :8080")
 	if err := r.Run(":8080"); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		slog.Error("Server failed to start", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 }

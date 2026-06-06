@@ -138,24 +138,27 @@ const docTemplate = `{
                 }
             }
         },
-        "/ping": {
+        "/healthz": {
             "get": {
-                "description": "get a simple pong message to verify the API is running",
+                "description": "Verifica status da API e conexões com o banco de dados",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "system"
                 ],
-                "summary": "Ping the API",
+                "summary": "Liveness/Readiness Probe",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.HealthResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/models.HealthResponse"
                         }
                     }
                 }
@@ -562,6 +565,27 @@ const docTemplate = `{
                     "description": "0 a 100",
                     "type": "integer",
                     "example": 85
+                }
+            }
+        },
+        "models.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "api": {
+                    "type": "string",
+                    "example": "UP"
+                },
+                "database": {
+                    "type": "string",
+                    "example": "UP"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2026-06-06T11:20:00Z"
+                },
+                "uptime": {
+                    "type": "string",
+                    "example": "14m3s"
                 }
             }
         },

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"log/slog"
 
 	"agri-ai-api/internal/dao"
 
@@ -24,7 +24,7 @@ func UsageLogMiddleware(usageDAO dao.UsageDAO) gin.HandlerFunc {
 				go func(id int, ep string) {
 					err := usageDAO.LogUsage(id, ep)
 					if err != nil {
-						log.Printf("Falha ao registrar log de uso: %v", err)
+						slog.Error("Falha ao registrar log de uso", slog.String("error", err.Error()), slog.Int("user_id", id))
 					}
 				}(userID.(int), endpoint)
 			}
