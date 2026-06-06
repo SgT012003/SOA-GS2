@@ -148,7 +148,17 @@ A aplicacao ja nasceu preparada para arquiteturas em Nuvem, desenhada aos moldes
 
 ---
 
-## 9. Instrucoes de Execucao
+## 9. CI/CD e Qualidade de Código (GitHub Actions)
+A aplicação conta com uma esteira de Integração Contínua (CI) operando via **GitHub Actions** (`.github/workflows/ci.yml`).
+A cada *push* ou *pull_request* para a branch `main`, as seguintes etapas são validadas automaticamente:
+- **Testes Unitários:** Validação de lógicas isoladas, como a assinatura HMAC de chaves JWT no pacote de Auth.
+- **Testes End-to-End (E2E):** Testes de integração (com `httptest`) que sobem o roteador Gin e validam respostas de rotas, como a sonda `/healthz`.
+- **Gosec Security Scanner:** Auditoria estática de código-fonte AST em busca de chaves expostas, *SQL injection* ou falhas lógicas (*Unhandled errors*).
+Só é possível realizar um *merge* caso todos os testes passem (cobertura verde).
+
+---
+
+## 10. Instrucoes de Execucao
 
 Requisitos: Ter o `Docker` e o `docker-compose` instalados na maquina.
 
@@ -166,7 +176,7 @@ Requisitos: Ter o `Docker` e o `docker-compose` instalados na maquina.
 
 ---
 
-## 10. Estrutura do Projeto (File Tree)
+## 11. Estrutura do Projeto (File Tree)
 
 ```text
 SOA-GS2/

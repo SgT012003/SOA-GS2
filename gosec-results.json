@@ -1,0 +1,25 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G706",
+			"details": "Log injection via taint analysis",
+			"file": "/app/internal/dao/db.go",
+			"code": "23: \tif err != nil {\n24: \t\tslog.Error(\"Falha ao inicializar banco de dados\", slog.String(\"error\", err.Error()))\n25: \t\treturn err\n",
+			"line": "24",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 32,
+		"lines": 2389,
+		"nosec": 2,
+		"found": 1
+	},
+	"GosecVersion": "dev"
+}

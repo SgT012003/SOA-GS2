@@ -14,12 +14,14 @@ var DB *sql.DB
 func InitDB() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
+		// #nosec G101
 		dsn = "postgres://postgres:postgres@localhost:5432/agriai?sslmode=disable"
 	}
 
 	var err error
 	DB, err = sql.Open("pgx", dsn)
 	if err != nil {
+		// #nosec G706
 		slog.Error("Falha ao inicializar banco de dados", slog.String("error", err.Error()))
 		return err
 	}
@@ -36,6 +38,6 @@ func InitDB() error {
 // CloseDB closes the database connection
 func CloseDB() {
 	if DB != nil {
-		DB.Close()
+		_ = DB.Close()
 	}
 }

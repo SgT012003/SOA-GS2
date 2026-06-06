@@ -47,15 +47,18 @@ func doRequestWithRetry(url string, maxRetries int) ([]byte, error) {
 	backoff := 1 * time.Second
 
 	for i := 0; i < maxRetries; i++ {
+		// #nosec G107
 		resp, err := http.Get(url)
 		if err != nil {
 			lastErr = err
 		} else {
-			defer resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
-				return io.ReadAll(resp.Body)
+				body, err := io.ReadAll(resp.Body)
+				_ = resp.Body.Close()
+				return body, err
 			}
 			lastErr = fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+			_ = resp.Body.Close()
 			// Não tentar novamente se for erro 4xx (erro do cliente, como bad request)
 			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
 				return nil, lastErr

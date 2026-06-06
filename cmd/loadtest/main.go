@@ -41,7 +41,7 @@ func main() {
 					} else {
 						errCount++
 					}
-					resp.Body.Close()
+					_ = resp.Body.Close()
 				}
 				mu.Unlock()
 			}
